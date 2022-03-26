@@ -1,0 +1,46 @@
+.room {
+  display: flex;
+  justify-content: space-between;
+}
+
+.left-side-box-room {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px
+}
+
+.room-id-box {
+  height: 30px;
+  overflow: hidden;
+  border-radius: 6px;
+  border: 1px solid #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
+  gap: 6px;
+  padding: 0 0 0 6px;
+  background: #000;
+}
+
+.room-id-box span {
+  color: #fff;
+}
+
+.room-id-box button {
+  width: 30px;
+  height: 30px;
+  padding: 6px;
+  outline: none;
+  background: #444;
+  border: none;
+  cursor: pointer;
+}
+
+.room-id-box button img {
+  width: 100%;
+  height: 100%;
+  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(90deg) brightness(103%) contrast(101%);
+}
