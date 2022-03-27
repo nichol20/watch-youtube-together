@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { v4 as uuidv4 } from 'uuid'
 
 import { VideoPlayer, CustomChat } from '..'
 import { api } from '../../api'
@@ -9,11 +10,14 @@ import './style.css'
 
 const Room = () => {
   const { roomId } = useParams()
+  const [ newUser, setNewUser ] = useState({ id: '' })
   const [ roomExists, setRoomExits ] = useState(false)
 
-  const copyRoomIdToClipboard = () => {
-    navigator.clipboard.writeText(roomId!)
-  }
+  const copyRoomIdToClipboard = () => navigator.clipboard.writeText(roomId!)
+
+  useEffect(() => { 
+    setNewUser({ id: `guest-${uuidv4()}` })
+  }, [])
 
   useEffect(() => {
     const getRoom = async () => {
@@ -36,7 +40,7 @@ const Room = () => {
             <img src={copyIcon} alt="copy" />
           </button>
         </div>
-        <VideoPlayer roomId={roomId!} />
+        <VideoPlayer roomId={roomId!} user={newUser} />
       </div>
       {/* <CustomChat /> */}
     </div>

@@ -23,7 +23,7 @@ app.post('/create-room', (req, res) => {
   
   if(rooms.filter(room => room.id === roomId)[0]) return res.status(409).json({ message: 'this room already exists'})
 
-  rooms.push({ id: roomId })
+  rooms.push({ id: roomId, users: [] })
   console.log(rooms)
 })
 
