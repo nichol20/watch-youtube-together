@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
+import { io } from 'socket.io-client'
 
 import { VideoPlayer, CustomChat } from '..'
 import { api } from '../../api'
 import copyIcon from '../../assets/copy-outline.svg'
 
 import './style.css'
+
+const socket = io('http://localhost:4000')
 
 const Room = () => {
   const { roomId } = useParams()
@@ -16,7 +19,7 @@ const Room = () => {
   const copyRoomIdToClipboard = () => navigator.clipboard.writeText(roomId!)
 
   useEffect(() => { 
-    setNewUser({ id: `guest-${uuidv4()}` })
+    setNewUser({ id: `guest-${uuidv4().slice(0, 8)}` })
   }, [])
 
   useEffect(() => {
@@ -40,9 +43,11 @@ const Room = () => {
             <img src={copyIcon} alt="copy" />
           </button>
         </div>
-        <VideoPlayer roomId={roomId!} user={newUser} />
+        <VideoPlayer roomId={roomId!} user={newUser} socket={socket}/>
       </div>
-      {/* <CustomChat /> */}
+      <div className="right-side-box-room">
+        <CustomChat roomId={roomId!} user={newUser} socket={socket}/>
+      </div>
     </div>
   )
 }

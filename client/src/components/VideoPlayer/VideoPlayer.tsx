@@ -1,11 +1,9 @@
 import React, { useEffect, useState} from 'react'
 import YouTube, { Options } from 'react-youtube';
-import { io } from 'socket.io-client'
 
 import './style.css'
 import searchIcon from '../../assets/search.svg'
-
-const socket = io('http://localhost:4000')
+import { Socket } from 'socket.io-client';
 
 type YouTubePlayer = any
 interface OnReadyEvent { target: YouTubePlayer }
@@ -20,12 +18,13 @@ interface User {
 interface VideoPlayerProps {
   roomId: string
   user: User
+  socket: Socket
 }
 
-const VideoPlayer = ({ roomId, user }:VideoPlayerProps) => {
+const VideoPlayer = ({ roomId, user, socket }:VideoPlayerProps) => {
   const [ YTPlayer, setYTPlayer ] = useState<YouTubePlayer>()
   const [ linkVideo, setLinkVideo ] = useState('') //user-entered link
-  const [ videoId, setVideoId ] = useState('a5V6gdu5ih8')
+  const videoId = localStorage.getItem('@videoId') ?? 'a5V6gdu5ih8'
   const [ isEmittingCurrentSettings, setIsEmittingCurrentSettings ] = useState(false)
   const opts: Options = {
     height: '405',
@@ -44,7 +43,10 @@ const VideoPlayer = ({ roomId, user }:VideoPlayerProps) => {
       socket.on('pause_video', () => { if(e.target.getPlayerState() !== 2) e.target.pauseVideo() })
       socket.on('play_video', () => { if(e.target.getPlayerState() !== 1) e.target.playVideo() })
       socket.on('change_rate', rate => { if(e.target.getPlaybackRate() !== rate) e.target.setPlaybackRate(rate) })
-      socket.on('change_video', linkVideo => setLinkVideo(linkVideo))
+      socket.on('change_video', videoIdFromServer => {
+        localStorage.setItem('@videoId', videoIdFromServer)
+        window.location.reload();
+      })
       socket.on('sync_video', ({ time, volume, isMuted, rate }) => {
         if(isMuted) e.target.mute()
         else e.target.unMute()
@@ -75,8 +77,8 @@ const VideoPlayer = ({ roomId, user }:VideoPlayerProps) => {
         if(videoId.includes('&')) {
           videoId = videoId.split('&')[0]
         }
-        setVideoId(videoId)
-        socket.emit('change_video', { roomId, linkVideo })
+        localStorage.setItem('@videoId', videoId)
+        socket.emit('change_video', { roomId, videoId })
       }
     },
 
@@ -89,7 +91,8 @@ const VideoPlayer = ({ roomId, user }:VideoPlayerProps) => {
         isMuted: YTPlayer.isMuted(),  
         rate: YTPlayer.getPlaybackRate() 
       })
-    }
+    },
+    
   }
 
   useEffect(() => {
@@ -107,11 +110,14 @@ const VideoPlayer = ({ roomId, user }:VideoPlayerProps) => {
         currentRate: YTPlayer.getPlaybackRate() 
       }))
     }
-  }, [ YTPlayer, roomId, isEmittingCurrentSettings, user ])
+  }, [YTPlayer, roomId, isEmittingCurrentSettings, user, socket])
 
   useEffect(() => {
     socket.emit('joined', { roomId , userId: user.id }, (currentVideo: string, currentTime: number, currentVolume: number, isMuted: boolean, currentRate: number) => {
-      if(currentVideo !== '') setLinkVideo(currentVideo)
+      if(currentVideo !== '' && currentVideo !== videoId) {
+        localStorage.setItem('@videoId', currentVideo)
+        window.location.reload()
+      }
       if(YTPlayer) {
         if(isMuted) YTPlayer.mute()
         else YTPlayer.unMute()
@@ -121,7 +127,7 @@ const VideoPlayer = ({ roomId, user }:VideoPlayerProps) => {
         YTPlayer.setPlaybackRate(currentRate)
       }
     })
-  }, [ roomId, user,  YTPlayer ])
+  }, [roomId, user, YTPlayer, videoId, socket])
 
   return (
     <div className="container-video-player">
@@ -132,16 +138,14 @@ const VideoPlayer = ({ roomId, user }:VideoPlayerProps) => {
         </button>
       </div>
 
-      <div className="video-player">
-        <YouTube
-          videoId={videoId}
-          opts={opts}
-          onReady={YoutubePlayerController.handleOnReady}
-          onPause={YoutubePlayerController.handlePause}
-          onPlay={YoutubePlayerController.handlePlay}
-          onPlaybackRateChange={YoutubePlayerController.handleRateChange}
-        />
-      </div>
+      <YouTube
+        videoId={videoId}
+        opts={opts}
+        onReady={YoutubePlayerController.handleOnReady}
+        onPause={YoutubePlayerController.handlePause}
+        onPlay={YoutubePlayerController.handlePlay}
+        onPlaybackRateChange={YoutubePlayerController.handleRateChange}
+      />
 
       <button className='sync-button' onClick={YoutubePlayerController.synchronize} >Sync</button>
     </div>

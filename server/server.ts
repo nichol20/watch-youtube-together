@@ -13,6 +13,7 @@ interface User {
 
 interface RoomsVideos {
   id: string
+  channelId?: string
   currentVideo?: string
   users: User[]
 }
@@ -35,9 +36,9 @@ const RoomController = {
     return currentRoom[0]?.currentVideo ?? ''
   },
 
-  setCurrentVideo: (roomId: string, linkVideo: string) => {
+  setCurrentVideo: (roomId: string, videoId: string) => {
     rooms.forEach((room, index) => {
-      if(room.id === roomId) rooms[index] = { ...room, currentVideo: linkVideo }
+      if(room.id === roomId) rooms[index] = { ...room, currentVideo: videoId }
     })
   },
   
@@ -117,6 +118,17 @@ const RoomController = {
     })
   },
 
+  getCurrentChannel: (roomId: string) => {
+    const currentRoom = rooms.filter(room => room.id === roomId)
+    return currentRoom[0]?.channelId ?? ''
+  },
+
+  setCurrentChannel: (roomId: string, channelId: string) => {
+    rooms.forEach((room, index) => {
+      if(room.id === roomId) rooms[index] = { ...room, channelId: channelId }
+    })
+  },
+
   deleteUser: (socketId: string) => {
     rooms.forEach((room, indexRoom) => {
       if(room.users.length === 0) rooms.splice(indexRoom, 1)
@@ -131,6 +143,7 @@ const RoomController = {
 }
 
 io.on('connection', socket => {
+  //VideoPlayer
   socket.on('joined', ({ roomId, userId }, callback) => {
     socket.join(roomId)
     RoomController.insertUserInRoom(roomId, userId, socket.id )
@@ -146,9 +159,9 @@ io.on('connection', socket => {
   socket.on('play_video', roomId => io.to(roomId).emit('play_video'))
   socket.on('pause_video', roomId => io.to(roomId).emit('pause_video'))
   socket.on('change_rate', ({ roomId, rate }) => io.to(roomId).emit('change_rate', rate))
-  socket.on('change_video', ({ roomId, linkVideo }) => {
-    io.to(roomId).emit('change_video', linkVideo)
-    RoomController.setCurrentVideo(roomId, linkVideo)
+  socket.on('change_video', ({ roomId, videoId }) => {
+    io.to(roomId).emit('change_video', videoId)
+    RoomController.setCurrentVideo(roomId, videoId)
   })
   socket.on('current_settings', ({ roomId, userId, currentTime, currentVolume, isMuted, currentRate }) => {
     RoomController.setCurrentTime(roomId, userId, currentTime)
@@ -159,6 +172,16 @@ io.on('connection', socket => {
   socket.on('sync_video', ({ roomId, time, volume, isMuted, rate }) => {
     io.to(roomId).emit('sync_video', { time, volume, isMuted, rate })
   })
+
+  //Chat
+  socket.on('joined_the_chat', ({ roomId }, callback) => {
+    callback(RoomController.getCurrentChannel(roomId))
+  })
+  socket.on('new_chat', ({ roomId, channelId }) => {
+    RoomController.setCurrentChannel(roomId, channelId)
+  })
+
+  //Disconnect
   socket.on('disconnect', () => RoomController.deleteUser(socket.id))
 })
 

@@ -23,6 +23,7 @@
 }
 
 .search-bar-box .search-bar {
+  width: 100%;
   background: transparent;
   outline: none;
   border: none;

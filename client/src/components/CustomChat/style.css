@@ -1,4 +1,4 @@
 .chat {
   width: 400px;
-  min-height: 100vh;
+  max-height: 100vh;
 }

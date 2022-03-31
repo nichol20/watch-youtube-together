@@ -44,3 +44,19 @@
   height: 100%;
   filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(90deg) brightness(103%) contrast(101%);
 }
+
+@media(max-width: 1115px) {
+  .room {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .right-side-box-room {
+    display: flex;
+    justify-content: center;
+  }
+
+  .str-chat.messaging {
+    height: 360px;
+  }
+}

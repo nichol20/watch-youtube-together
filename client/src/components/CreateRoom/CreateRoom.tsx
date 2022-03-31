@@ -28,8 +28,9 @@ const CreateRoom = () => {
         <div className="join-room">
           <input
            type="text" 
-           placeholder='insert the room id' 
+           placeholder='insert a room id' 
            onChange={e => setRoomIdInserted(e.target.value)}
+           data-testid="input-to-insert-room-id"
           />
           <button onClick={handleJoinRoom} >Join a Room</button>
         </div>

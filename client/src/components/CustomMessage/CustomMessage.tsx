@@ -1,5 +1,6 @@
 import React, { BaseSyntheticEvent } from 'react'
 import { useMessageContext, MessageStatus, Avatar, MessageTimestamp, useChatContext } from 'stream-chat-react';
+import userIcon from '../../assets/person-circle.svg'
 
 import './style.css'
 
@@ -16,7 +17,7 @@ const CustomMessage = () => {
     const showNameElementSpan: HTMLSpanElement = document.createElement('span')
     const showNameElementBox: HTMLDivElement = document.createElement('div')
 
-    showNameElementSpan.innerHTML = message.user?.name ?? 'guest'
+    showNameElementSpan.innerHTML = message.user?.id ?? 'guest'
     showNameElementBox.classList.add('show-name-box')
     showNameElementBox.appendChild(showNameElementSpan)
     avatar.parentElement?.appendChild(showNameElementBox)
@@ -27,7 +28,7 @@ const CustomMessage = () => {
   return (
     <div className={`custom-message ${isCurrentUser ? 'current-user': ''}`}>
       <div className="message-box">
-        <Avatar image={message.user?.image} onMouseOver={handleOnMouseOverAvatar}/>
+        <Avatar image={userIcon} onMouseOver={handleOnMouseOverAvatar}/>
         <p className="message">{message.text}</p>
       </div>
       <div className="timestamp-box">
