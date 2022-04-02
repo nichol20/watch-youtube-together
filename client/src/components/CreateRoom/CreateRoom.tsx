@@ -16,9 +16,7 @@ const CreateRoom = () => {
     await api.post('/create-room', { roomId })
   }
 
-  const handleJoinRoom = async () => {
-    navigate(`/rooms/${roomIdInserted}`)
-  }
+  const handleJoinRoom = () => navigate(`/rooms/${roomIdInserted}`)
 
   return (
     <div className="create-room">

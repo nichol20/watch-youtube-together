@@ -132,7 +132,12 @@ const VideoPlayer = ({ roomId, user, socket }:VideoPlayerProps) => {
   return (
     <div className="container-video-player">
       <div className="search-bar-box">
-        <input className='search-bar' type="text" onChange={e => setLinkVideo(e.target.value)}/>
+        <input
+         className='search-bar' 
+         type="text"
+         placeholder="insert a youtube link" 
+         onChange={e => setLinkVideo(e.target.value)}
+        />
         <button onClick={YoutubePlayerController.handleChangeVideo}>
           <img src={searchIcon} alt="search" />
         </button>
